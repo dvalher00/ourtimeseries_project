@@ -199,7 +199,7 @@ tabla_formateada <- tabla_resultados %>%
   ) %>%
   row_spec(0, bold = TRUE, background = color_encabezado, color = "white") %>%
   column_spec(1, bold = TRUE, color = color_texto) %>%
-  add_header_above(c("Model" = 1, "Information Criteria" = 3, "Error Metrics" = 2),
+  add_header_above(c("" = 1, "Likelihood Criteria" = 3, "Error Metrics" = 2),
                    background = color_encabezado, color = "white") %>%
   footnote(general = "The RMSE represents the square root of the MSE<br>Green cells highlight optimal values (lowest for all metrics)",
            general_title = "Note:",
