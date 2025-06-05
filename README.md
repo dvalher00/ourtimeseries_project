@@ -1,4 +1,5 @@
 📈 Análisis de Series Temporales: Gastos en Alimentación en Australia
+
 Este proyecto realiza un análisis detallado de una serie temporal correspondiente al gasto mensual total en cafés, restaurantes y servicios de comida para llevar en Australia desde abril de 1980 hasta abril de 2015.
 
 🔍 Objetivos principales:
