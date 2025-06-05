@@ -1,6 +1,6 @@
 #' ---
-#' title: "Time Series Analysis: Food Services Expenditure in Australia"
-#' author: "Your Name"
+#' title: "Time Series Analysis: Food Services Expenditure in Australia (1980-2015)"
+#' author: "David Bravo Pérez, Daniel Sánchez Pagán, David Valcárcel Herrera"
 #' date: "`r Sys.Date()`"
 #' output: 
 #'   html_document:
