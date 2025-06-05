@@ -1,6 +1,6 @@
 ---
 title: "Time Series Analysis: Food Services Expenditure in Australia (1980-2015)"
-author: "David Bravo Pérez, Daniel Sánchez Pagán, David Valcárcel Herrera"
+author: "David Bravo Perez, Daniel Sanchez Pagan, David Valcarcel Herrera"
 date: "2025-06-05"
 output: 
   html_document:
@@ -14,14 +14,6 @@ output:
 ## Loading Packages and Data
 
 
-```r
-library(forecast)
-library(ggplot2)
-source("BoxCoxTransformation.R")
-require(astsa)
-source("Diagnostic.R")
-require(portes)
-```
 
 Importing the time series data
 
@@ -47,7 +39,7 @@ ts.plot(z, main = "Total Monthly Expenditure on Cafes, Restaurants and Takeaway 
         xlim = c(1980, 2016))
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
 
 ### Seasonal Plot
 
@@ -58,7 +50,7 @@ ggseasonplot(z, main = "Seasonal Plot: Monthly Food Services Expenditure",
   theme(legend.position = "bottom")
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
 
 **Initial observations:**
 - Clear upward trend component
@@ -72,13 +64,13 @@ ggseasonplot(z, main = "Seasonal Plot: Monthly Food Services Expenditure",
 Plot.var(z, 12)
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
 
 ```r
 BoxCox(z, 12)
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-2.png)
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-2.png)
 
 **Transformation results:**
 - Optimal lambda = 0.2
@@ -91,7 +83,7 @@ ts.plot(X.tilde, main = "Box-Cox Transformed Series (λ=0.2)",
         xlim = c(1980, 2016))
 ```
 
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
 
 ### Autocorrelation Function (ACF)
 
@@ -102,7 +94,7 @@ Acf(X.tilde, lag.max = 72,
     xlab = "Lag (months)", ylab = "ACF")
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
 
 ## Differencing for Stationarity
 ### First Regular Difference
@@ -115,7 +107,7 @@ ts.plot(Wt.1,
         xlim = c(1980, 2016))
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png)
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
 
 ### First Seasonal Difference
 
@@ -127,7 +119,7 @@ ts.plot(Wt.2,
         xlim = c(1980, 2016))
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png)
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png)
 
 ### ACF and PACF of Differenced Series
 
@@ -142,7 +134,7 @@ Pacf(Wt.2, lag.max = 72,
      xlab = "Lag (months)", ylab = "PACF")
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png)
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png)
 
 ```r
 par(mfrow = c(1, 1))
@@ -175,15 +167,26 @@ Creating comparison table
 
 
 ```r
-results_table <- data.frame()
-for (name in names(models)) {
-  mod <- models[[name]]
+modelos <- list(
+  mod1 = mod1,
+  mod2 = mod2,
+  mod3 = mod3,
+  mod4 = mod4,
+  mod5 = mod5,
+  mod6 = mod6,
+  mod7 = mod7
+)
+
+# Create dataframe with metrics
+tabla_resultados <- data.frame()
+for (nombre in names(modelos)) {
+  mod <- modelos[[nombre]]
   acc <- accuracy(mod)
   
   rmse_val <- acc["Training set", "RMSE"]
   
-  results_table <- rbind(results_table, data.frame(
-    Model = name,
+  tabla_resultados <- rbind(tabla_resultados, data.frame(
+    Model = nombre,
     AIC = round(mod$aic, 2),
     AICc = round(mod$aicc, 2),
     BIC = round(mod$bic, 2),
@@ -191,21 +194,136 @@ for (name in names(models)) {
     MAE = round(acc["Training set", "MAE"], 4)
   ))
 }
+
+# Identify best values
+best_AIC <- min(tabla_resultados$AIC)
+best_AICc <- min(tabla_resultados$AICc)
+best_BIC <- min(tabla_resultados$BIC)
+best_RMSE <- min(tabla_resultados$RMSE)
+best_MAE <- min(tabla_resultados$MAE)
+
+# Define colors
+color_texto <- "#111111"  # Very dark gray (almost black)
+color_resaltado <- "#90EE90"  # Light green for highlighting
+color_encabezado <- "#3498db"  # Blue for header
+
+# Create table with highlighted cells and dark text
+tabla_formateada <- tabla_resultados %>%
+  mutate(
+    AIC = cell_spec(AIC, "html", 
+                    background = ifelse(AIC == best_AIC, color_resaltado, "white"),
+                    color = color_texto),
+    AICc = cell_spec(AICc, "html", 
+                     background = ifelse(AICc == best_AICc, color_resaltado, "white"),
+                     color = color_texto),
+    BIC = cell_spec(BIC, "html", 
+                    background = ifelse(BIC == best_BIC, color_resaltado, "white"),
+                    color = color_texto),
+    RMSE = cell_spec(RMSE, "html", 
+                     background = ifelse(RMSE == best_RMSE, color_resaltado, "white"),
+                     color = color_texto),
+    MAE = cell_spec(MAE, "html", 
+                    background = ifelse(MAE == best_MAE, color_resaltado, "white"),
+                    color = color_texto)
+  ) %>%
+  kable(align = "c", escape = FALSE, format = "html",
+        caption = "Monthly Expenditure on Food Services (Australia, Apr 1980–Apr 2015) - Model comparison") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  row_spec(0, bold = TRUE, background = color_encabezado, color = "white") %>%
+  column_spec(1, bold = TRUE, color = color_texto) %>%
+  add_header_above(c(" " = 1, "Likelihood Criteria" = 3, "Error Metrics" = 2),
+                   background = color_encabezado, color = "white") %>%
+  footnote(general = "The RMSE represents the square root of the MSE<br>Green cells highlight optimal values (lowest for all metrics)",
+           general_title = "Note:",
+           footnote_as_chunk = TRUE,
+           escape = FALSE)
+
+tabla_formateada
 ```
 
-### Model Metrics Comparison Table
-
-
-```r
-library(dplyr)
-library(kableExtra)
-
-best_AIC <- min(results_table$AIC)
-best_AICc <- min(results_table$AICc)
-best_BIC <- min(results_table$BIC)
-best_RMSE <- min(results_table$RMSE)
-best_MAE <- min(results_table$MAE)
-```
+<table class="table table-striped table-hover table-condensed table-responsive" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
+<caption style="font-size: initial !important;">Monthly Expenditure on Food Services (Australia, Apr 1980–Apr 2015) - Model comparison</caption>
+ <thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1"></th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; color: white !important;padding-right: 4px; padding-left: 4px; background-color: rgba(52, 152, 219, 255) !important;" colspan="3"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">Likelihood Criteria</div></th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; color: white !important;padding-right: 4px; padding-left: 4px; background-color: rgba(52, 152, 219, 255) !important;" colspan="2"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">Error Metrics</div></th>
+</tr>
+  <tr>
+   <th style="text-align:center;font-weight: bold;color: white !important;background-color: rgba(52, 152, 219, 255) !important;"> Model </th>
+   <th style="text-align:center;font-weight: bold;color: white !important;background-color: rgba(52, 152, 219, 255) !important;"> AIC </th>
+   <th style="text-align:center;font-weight: bold;color: white !important;background-color: rgba(52, 152, 219, 255) !important;"> AICc </th>
+   <th style="text-align:center;font-weight: bold;color: white !important;background-color: rgba(52, 152, 219, 255) !important;"> BIC </th>
+   <th style="text-align:center;font-weight: bold;color: white !important;background-color: rgba(52, 152, 219, 255) !important;"> RMSE </th>
+   <th style="text-align:center;font-weight: bold;color: white !important;background-color: rgba(52, 152, 219, 255) !important;"> MAE </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;font-weight: bold;color: rgba(17, 17, 17, 255) !important;"> mod1 </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1784.71</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1784.33</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1752.87</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.036084</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.0258</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;font-weight: bold;color: rgba(17, 17, 17, 255) !important;"> mod2 </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(144, 238, 144, 255) !important;">-1786.03</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(144, 238, 144, 255) !important;">-1785.46</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1746.24</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(144, 238, 144, 255) !important;">0.035744</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.026</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;font-weight: bold;color: rgba(17, 17, 17, 255) !important;"> mod3 </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1782.5</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1782.04</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1746.69</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.035997</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(144, 238, 144, 255) !important;">0.0256</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;font-weight: bold;color: rgba(17, 17, 17, 255) !important;"> mod4 </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1780.89</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1780.67</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1757.02</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.036022</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.0262</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;font-weight: bold;color: rgba(17, 17, 17, 255) !important;"> mod5 </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1783.77</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1783.56</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(144, 238, 144, 255) !important;">-1759.9</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.036045</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.026</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;font-weight: bold;color: rgba(17, 17, 17, 255) !important;"> mod6 </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1784.68</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1784.4</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1756.83</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.035952</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.0261</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;font-weight: bold;color: rgba(17, 17, 17, 255) !important;"> mod7 </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1780.51</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1780.29</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">-1756.63</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.0362</span> </td>
+   <td style="text-align:center;"> <span style="     color: rgba(17, 17, 17, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: white !important;">0.026</span> </td>
+  </tr>
+</tbody>
+<tfoot><tr><td style="padding: 0; " colspan="100%">
+<span style="font-style: italic;">Note:</span> <sup></sup> The RMSE represents the square root of the MSE<br>Green cells highlight optimal values (lowest for all metrics)</td></tr></tfoot>
+</table>
 
 ## Residual Diagnostics
 ### Custom Ljung-Box Tests
@@ -275,7 +393,7 @@ Check.normality(mod2$residuals)
 Check.normality(mod3$residuals)
 ```
 
-![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-1.png)
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png)
 
 ```
 ##                    Statistics P-value
@@ -288,7 +406,7 @@ Check.normality(mod3$residuals)
 Check.normality(mod5$residuals)
 ```
 
-![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-2.png)
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-2.png)
 
 ```
 ##                    Statistics P-value
@@ -297,7 +415,7 @@ Check.normality(mod5$residuals)
 ## Pearson Chi.square    14.4559  0.8067
 ```
 
-![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-3.png)
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-3.png)
 
 ## Validation and Forecasting
 ### Observed vs Fitted Values (Model 3)
@@ -314,7 +432,7 @@ legend("topleft", legend = c("Actual", "Fitted"),
        col = c("black", "red"), lty = 1, lwd = 1.5)
 ```
 
-![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-18-1.png)
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16-1.png)
 
 ### 30-Month Forecast (Starting from 2010)
 
@@ -345,5 +463,5 @@ autoplot(Predic.mod, include = 5*12,  # Show last 5 years of historical data
 ## (`geom_line()`).
 ```
 
-![plot of chunk unnamed-chunk-19](figure/unnamed-chunk-19-1.png)
+![plot of chunk unnamed-chunk-17](figure/unnamed-chunk-17-1.png)
 

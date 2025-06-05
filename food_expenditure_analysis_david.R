@@ -1,6 +1,6 @@
 #' ---
 #' title: "Time Series Analysis: Food Services Expenditure in Australia (1980-2015)"
-#' author: "David Bravo Pérez, Daniel Sánchez Pagán, David Valcárcel Herrera"
+#' author: "David Bravo Perez, Daniel Sanchez Pagan, David Valcarcel Herrera"
 #' date: "`r Sys.Date()`"
 #' output: 
 #'   html_document:
@@ -12,6 +12,9 @@
 #' ---
 #' 
 #' ## Loading Packages and Data
+
+#+ setup, include=FALSE
+knitr::opts_chunk$set(encoding = "UTF-8")
 
 library(forecast)
 library(ggplot2)
@@ -107,15 +110,26 @@ names(models) <- paste0("mod", 1:7)
 #' ## Model Comparison
 
 #' Creating comparison table
-results_table <- data.frame()
-for (name in names(models)) {
-  mod <- models[[name]]
+modelos <- list(
+  mod1 = mod1,
+  mod2 = mod2,
+  mod3 = mod3,
+  mod4 = mod4,
+  mod5 = mod5,
+  mod6 = mod6,
+  mod7 = mod7
+)
+
+# Create dataframe with metrics
+tabla_resultados <- data.frame()
+for (nombre in names(modelos)) {
+  mod <- modelos[[nombre]]
   acc <- accuracy(mod)
   
   rmse_val <- acc["Training set", "RMSE"]
   
-  results_table <- rbind(results_table, data.frame(
-    Model = name,
+  tabla_resultados <- rbind(tabla_resultados, data.frame(
+    Model = nombre,
     AIC = round(mod$aic, 2),
     AICc = round(mod$aicc, 2),
     BIC = round(mod$bic, 2),
@@ -124,15 +138,55 @@ for (name in names(models)) {
   ))
 }
 
-#' ### Model Metrics Comparison Table
-library(dplyr)
-library(kableExtra)
+# Identify best values
+best_AIC <- min(tabla_resultados$AIC)
+best_AICc <- min(tabla_resultados$AICc)
+best_BIC <- min(tabla_resultados$BIC)
+best_RMSE <- min(tabla_resultados$RMSE)
+best_MAE <- min(tabla_resultados$MAE)
 
-best_AIC <- min(results_table$AIC)
-best_AICc <- min(results_table$AICc)
-best_BIC <- min(results_table$BIC)
-best_RMSE <- min(results_table$RMSE)
-best_MAE <- min(results_table$MAE)
+# Define colors
+color_texto <- "#111111"  # Very dark gray (almost black)
+color_resaltado <- "#90EE90"  # Light green for highlighting
+color_encabezado <- "#3498db"  # Blue for header
+
+# Create table with highlighted cells and dark text
+tabla_formateada <- tabla_resultados %>%
+  mutate(
+    AIC = cell_spec(AIC, "html", 
+                    background = ifelse(AIC == best_AIC, color_resaltado, "white"),
+                    color = color_texto),
+    AICc = cell_spec(AICc, "html", 
+                     background = ifelse(AICc == best_AICc, color_resaltado, "white"),
+                     color = color_texto),
+    BIC = cell_spec(BIC, "html", 
+                    background = ifelse(BIC == best_BIC, color_resaltado, "white"),
+                    color = color_texto),
+    RMSE = cell_spec(RMSE, "html", 
+                     background = ifelse(RMSE == best_RMSE, color_resaltado, "white"),
+                     color = color_texto),
+    MAE = cell_spec(MAE, "html", 
+                    background = ifelse(MAE == best_MAE, color_resaltado, "white"),
+                    color = color_texto)
+  ) %>%
+  kable(align = "c", escape = FALSE, format = "html",
+        caption = "Monthly Expenditure on Food Services (Australia, Apr 1980–Apr 2015) - Model comparison") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  row_spec(0, bold = TRUE, background = color_encabezado, color = "white") %>%
+  column_spec(1, bold = TRUE, color = color_texto) %>%
+  add_header_above(c(" " = 1, "Likelihood Criteria" = 3, "Error Metrics" = 2),
+                   background = color_encabezado, color = "white") %>%
+  footnote(general = "The RMSE represents the square root of the MSE<br>Green cells highlight optimal values (lowest for all metrics)",
+           general_title = "Note:",
+           footnote_as_chunk = TRUE,
+           escape = FALSE)
+
+tabla_formateada
 
 #' ## Residual Diagnostics
 
@@ -181,3 +235,4 @@ autoplot(Predic.mod, include = 5*12,  # Show last 5 years of historical data
   theme(legend.position = "bottom",
         plot.title = element_text(size = 16, face = "bold"),
         axis.title = element_text(size = 12))
+
