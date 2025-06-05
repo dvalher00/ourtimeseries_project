@@ -1,41 +1,44 @@
-📈 Análisis de Series Temporales: Gastos en Alimentación en Australia
+📈 Time Series Analysis: Food Expenditure in Australia (Apr 1980–2015)
 
-Este proyecto realiza un análisis detallado de una serie temporal correspondiente al gasto mensual total en cafés, restaurantes y servicios de comida para llevar en Australia desde abril de 1980 hasta abril de 2015.
+This project conducts a detailed analysis of a time series corresponding to the total monthly expenditure on cafés, restaurants, and takeaway food services in Australia from April 1980 to April 2015.
 
-🔍 Objetivos principales:
-Realizar un análisis exploratorio de la serie.
+🔍 Main Objectives:
 
-Transformar y diferenciar la serie para lograr estacionariedad.
+Perform an exploratory analysis of the series.
 
-Identificar modelos SARIMA adecuados para modelar la serie.
+Transform and difference the series to achieve stationarity.
 
-Comparar modelos en función de métricas estadísticas (AIC, BIC, RMSE, MAE).
+Identify suitable SARIMA models to model the series.
 
-Diagnosticar los residuos para validar los supuestos del modelo.
+Compare models based on statistical metrics (AIC, BIC, RMSE, MAE).
 
-Generar un pronóstico de 30 meses y evaluar el ajuste del modelo.
+Diagnose residuals to validate model assumptions.
 
-🛠 Herramientas y paquetes utilizados:
-forecast: para modelado y pronóstico.
+Generate a 30-month forecast and evaluate model fit.
 
-astsa, portes: para análisis estadístico avanzado.
+🛠 Tools and Packages Used:
 
-Funciones personalizadas para la transformación Box-Cox y pruebas de diagnóstico.
+forecast: for modeling and forecasting.
 
-🔧 Fases del análisis:
-Exploración inicial: visualización, detección de estacionalidad y heterocedasticidad.
+astsa, portes: for advanced statistical analysis.
 
-Transformación Box-Cox: se obtiene λ = 0.2.
+Custom functions for Box-Cox transformation and diagnostic testing.
 
-Diferenciación: regular y estacional para lograr estacionariedad.
+🔧 Analysis Phases:
 
-Modelado SARIMA: se prueban 7 modelos diferentes.
+Initial exploration: visualization, detection of seasonality and heteroscedasticity.
 
-Comparación de modelos: selección del mejor modelo con base en AIC, BIC y precisión.
+Box-Cox transformation: λ = 0.2 obtained.
 
-Diagnóstico de residuos: pruebas Ljung-Box, no paramétricas y normalidad.
+Differencing: both regular and seasonal to achieve stationarity.
 
-Pronóstico: proyección de la serie a 30 meses con el modelo seleccionado.
+SARIMA modeling: 7 different models tested.
 
-📊 Resultado:
-El modelo SARIMA seleccionado (Modelo 3) demuestra un ajuste sólido y proporciona una base confiable para pronósticos futuros del consumo en el sector alimenticio australiano.
+Model comparison: best model selected based on AIC, BIC, and accuracy.
+
+Residual diagnostics: Ljung-Box tests, non-parametric tests, and normality checks.
+
+Forecasting: 30-month projection using the selected model.
+
+📊 Result:
+The selected SARIMA model (Model 3) demonstrates a solid fit and provides a reliable foundation for future forecasts of food sector consumption in Australia.
